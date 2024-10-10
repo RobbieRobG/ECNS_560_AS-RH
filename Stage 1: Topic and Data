@@ -1,12 +1,48 @@
-Topic and Description:
+Project for grade here: https://docs.google.com/document/d/1dR9xh3TsEfErzW5Rl6my2PtnIrw5s9_J4a-IcY73BCw/edit?usp=sharing 
+
+
+Topic and Description: 
+
+Our project will analyze US State demographic data on age distributions to analyze the impact on economic outcomes, specifically the impact on debt-to-GDP ratios. 
+
 
 Motivation:
 
-Description of datasets
-  - source URL
-  - important variables
-  -  timespan and spatial coverage
-  - how it relates to other datasets in this project
+We suspect that there is a significant relationship between the proportion of the older population and the state debt to GDP ratio. Given a relatively greater proportion of older population, state and local politicians will be incentivized to enact policies to cater to that demographic, which disproportionately benefits from state benefits in retirement while contributing relatively less in tax revenue due to greater retirement rates. 
 
+Research Question:
+(Descriptive) Does having a disproportionately young or old population correlate with the debt-to-GDP ratio of a state?
+(Causal) Is there a causal impact of having a relatively older population on state debt-to-GDP ratios? 
+Specifically through older populations receiving greater benefits from the state while contributing less in retirement than their younger counterparts.
+Potentially look at spending on pensions etc.
+(Predictive) Can we use changes in age demographics to predict financial well-being of states?
 
-Project for grade here: https://docs.google.com/document/d/1dR9xh3TsEfErzW5Rl6my2PtnIrw5s9_J4a-IcY73BCw/edit?usp=sharing 
+Description of datasets:
+
+U.S. Census Bureau, American Community Survey 2010 - 2023
+Source: https://www.census.gov/acs/www/data_documentation/
+Important Variables:
+Debt outstanding
+Revenue1
+General revenue1
+Intergovernmental revenue1
+ From Federal Government
+From State government1
+From local governments1
+Multiple variables that account for spending on different categories
+Timespan: 2010 - 2023
+Spatial Coverage: All states in the U.S. plus D.C., local gov’t level and up.
+
+U.S. Census Bureau, Annual Surveys of State and Local Government Finances
+Source: https://www.census.gov/programs-surveys/state/data/tables.html 
+ Important Variables:
+Breakdown of demographic information by age brackets, sex, and immigration status
+Timespan: Separate annual datasets for 2010-2021
+Spatial Coverage: All States in the U.S. plus D.C. 
+
+U.S. Bureau of Economic Analysis, Regional Economic Accounts: State Annual Gross Domestic Product (GDP) summary 
+Source: https://apps.bea.gov/regional/downloadzip.htm?_gl=1*1vac9nu*_ga*NTc2MzM0MjQ4LjE3Mjg1MTY2ODU.*_ga_J4698JNNFT*MTcyODUxNjcxMC4xLjEuMTcyODUxNjc4Ni41NS4wLjA.
+Important Variables: 
+Real Annual GDP
+Timespan: 1997 - 2023
+Spatial Coverage: All states in the U.S. plus D.C. and regional groupings
