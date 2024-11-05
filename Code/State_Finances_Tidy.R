@@ -111,7 +111,6 @@ st_fin_2012_tidy = st_fin_2012_tidy|>
   #   values_from =
   # )
 
-# Tidy Function ----------
 # Function to tidy a list of data frames----------
 make_tidy = function(st_fin_year) {
   tidy_st_fin = st_fin_year|>
@@ -170,3 +169,6 @@ all_st_fin_tidy = make_tidy(st_fin_2011)|>
 #   select(intersect(names(st_fin_2010), list_to_keep))
 
 
+# SAVING
+saveRDS(all_st_fin_tidy, '2. Merged Data/State_Finances_All_Years.rds')
+write.csv(all_st_fin_tidy, "2. Merged Data/State_Finances_All_Years.csv", row.names = F)
