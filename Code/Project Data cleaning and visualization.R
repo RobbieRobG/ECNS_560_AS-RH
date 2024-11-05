@@ -56,6 +56,16 @@ Merged_Population_SAGDP_DebtToIncomeRatio_Data <- Merged_Population_SAGDP_Data %
 
 write.csv(Merged_Population_SAGDP_DebtToIncomeRatio_Data, "Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv", row.names = FALSE)
 
+
+
+data1 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/ALMOST_FINAL_________Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv")
+data2 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/State_Finances_All_Years.csv")
+
+FinalDataset <- data1 |> full_join(data2, by = c("State", "Year"))
+
+write.csv(FinalDataset, "FinalDataset.csv", row.names = FALSE)
+
+
 #------------------------------------------------------------------------------------------------------------------------------
 
 #Visualizing key variables:
@@ -234,10 +244,43 @@ ggsave(filename = "real_gdp_histogram.jpeg", plot = gdp_histogram_plot, width = 
 
 
 
+#Taxes Visualization:
+
+revenue_data <- FinalDataset %>%
+  pivot_longer(cols = c("Taxes"), names_to = "Revenue_Source", values_to = "Amount")
+
+tax_plot <- ggplot(revenue_data, aes(x = Year, y = Amount, fill = Revenue_Source)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Revenue Sources Over Time",
+       x = "Year",
+       y = "Revenue (in dollars)") +
+  theme_minimal()
+
+ggsave(filename = "StateTaxRevenueOverTime.jpeg", plot = tax_plot, width = 10, height = 6, dpi = 300)
 
 
 
+#Revenue Breakdown
 
+library(tidyr)
+library(ggplot2)
 
+# Select the relevant columns and pivot to long format
+revenue_categories <- FinalDataset %>%
+  select(Year, State, Property, Sales.and.gross.receipts, General.sales, Selective.sales, 
+         Motor.fuel, Alcoholic.beverage, Tobacco.products, Public.utilities, 
+         Other.selective.sales, Individual.income, Corporate.income, 
+         Motor.vehicle.license, Other.taxes) %>%
+  pivot_longer(cols = Property:Other.taxes, names_to = "Revenue_Source", values_to = "Amount")
+
+# Create the stacked bar chart
+tax_plot2 <- ggplot(revenue_categories, aes(x = Year, y = Amount, fill = Revenue_Source)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Revenue Sources by Over Time, All States",
+       x = "Year",
+       y = "Revenue (in dollars)") +
+  theme_minimal() 
+
+ggsave(filename = "StateTaxRevenueOverTimebySource.jpeg", plot = tax_plot2, width = 10, height = 6, dpi = 300)
 
 
