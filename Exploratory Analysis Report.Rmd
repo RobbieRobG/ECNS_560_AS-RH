@@ -46,7 +46,7 @@ This shows the proportion of the total population in each age catagory overtime.
 
 ## Real GDP Histogram
 
-![Real GDP Histogram](C:\Users\Al\OneDrive\Documents\GitHub\ECNS_560_AS-RH\Visualizations\real_gdp_histogram_log.jpeg)
+![Real GDP Histogram](C:\Users\Al\OneDrive\Documents\GitHub\ECNS_560_AS-RH\Visualizations\real_gdp_distribution_animation.gif)
 
 ## Tax Revenue Over Time
 

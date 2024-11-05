@@ -58,8 +58,8 @@ write.csv(Merged_Population_SAGDP_DebtToIncomeRatio_Data, "Merged_Population_SAG
 
 
 
-data1 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/ALMOST_FINAL_________Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv")
-data2 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/State_Finances_All_Years.csv")
+data1 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/ALMOST_FINAL_________Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv")
+data2 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/State_Finances_All_Years.csv")
 
 FinalDataset <- data1 |> full_join(data2, by = c("State", "Year"))
 
@@ -283,4 +283,40 @@ tax_plot2 <- ggplot(revenue_categories, aes(x = Year, y = Amount, fill = Revenue
 
 ggsave(filename = "StateTaxRevenueOverTimebySource.jpeg", plot = tax_plot2, width = 10, height = 6, dpi = 300)
 
+
+
+#GDP gif
+
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+library(gganimate)
+
+# Specify the variable for Real GDP
+gdp_variable <- "Real.GDP..millions.of.chained.2017.dollars..1."
+
+# Create the ggplot object for boxplots with GDP over time
+gdp_plot <- ggplot(FinalDataset, aes(x = as.factor(Year), y = log(.data[[gdp_variable]]))) +
+  geom_boxplot(aes(fill = as.factor(Year)), outlier.shape = NA, alpha = 0.5) +  # Boxplot to visualize GDP distribution
+  geom_jitter(width = 0.2, alpha = 0.3) +  # Add jitter for distribution of points
+  labs(
+    title = "Distribution of Real GDP by Year from 2011-2023",
+    y = "Real GDP (Millions of Chained 2017 Dollars, Logged)",
+    x = "Year"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 14),
+    axis.title.x = element_text(size = 16),
+    axis.title.y = element_text(size = 16),
+    plot.title = element_text(size = 18),
+    legend.position = "none"
+  ) +
+  transition_states(Year, transition_length = 2, state_length = 1, wrap = FALSE) +  # Animate by Year
+  ease_aes('linear')  # Smooth transition
+
+# Save the animated plot as a GIF
+gdp_animation <- animate(gdp_plot, nframes = 26, width = 800, height = 600)
+anim_save("real_gdp_distribution_animation.gif", animation = gdp_animation)
 
