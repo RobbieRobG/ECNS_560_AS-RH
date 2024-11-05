@@ -233,3 +233,11 @@ gdp_histogram_plot <- ggplot(Merged_Population_SAGDP_DebtToIncomeRatio_Data, aes
 ggsave(filename = "real_gdp_histogram.jpeg", plot = gdp_histogram_plot, width = 10, height = 6, dpi = 300)
 
 
+
+
+
+
+
+
+
+
