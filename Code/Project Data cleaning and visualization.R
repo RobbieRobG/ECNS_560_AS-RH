@@ -321,3 +321,53 @@ gdp_plot <- ggplot(FinalDataset, aes(x = as.factor(Year), y = log(.data[[gdp_var
 gdp_animation <- animate(gdp_plot, nframes = 26, width = 800, height = 600)
 anim_save("real_gdp_distribution_animation.gif", animation = gdp_animation)
 
+
+
+# HEATMAP OF RETIRMENT AGE POPULATION BY STATE AND YEAR ------------------------------------
+
+state_data = read_csv("2. Merged Data/FinalDataset.csv")
+
+# creates count of population older 65 and older
+retirement_age = state_data|>
+  select(State, CTYNAME, Year, POPESTIMATE,starts_with("AGE"))|>
+  mutate(Retirement_Age_Proportion = AGE6569_PROP + AGE7074_PROP + 
+           AGE7579_PROP + AGE8084_PROP + AGE85PLUS_PROP)|>
+  filter(!is.na(State))
+
+# Summarize the data to get a unique value for each State and Year
+retirement_age_summary <- retirement_age %>%
+  group_by(State, Year) %>%
+  summarize(Retirement_Age_Proportion = mean(Retirement_Age_Proportion, na.rm = TRUE), .groups = 'drop')|>
+  filter(!is.na(Retirement_Age_Proportion) & !is.nan(Retirement_Age_Proportion))
+
+# Check the structure of the summarized data
+print(head(retirement_age_summary))
+print(unique(retirement_age_summary$Year))
+print(unique(retirement_age_summary$State))
+
+# Ensure Year is a factor with levels in the correct order
+retirement_age_summary$Year <- factor(retirement_age_summary$Year, 
+                                      levels = sort(unique(retirement_age_summary$Year)))
+# Create the heatmap
+ggplot(retirement_age_summary, aes(x = Year, y = State, fill = Retirement_Age_Proportion)) +
+  geom_tile(color = "white") +  # Adds borders to tiles
+  labs(
+    title = "Retirement Age Proportion of State Population",
+    x = "Year",
+    y = "State",
+    fill = "Retirement Age Proportion"
+  ) +
+  theme_minimal() +
+  scale_fill_viridis_c(option = "D") +
+  theme(
+    axis.text.x = element_text(angle = 80, hjust = 1, size = 8, color = "black"),  
+    axis.text.y = element_text(size = 8, color = "black"), 
+    plot.title = element_text(size = 14, color = "black", face = "bold"), 
+    axis.title.x = element_text(size = 12, color = "black"),
+    axis.title.y = element_text(size = 12, color = "black") 
+  ) +
+  coord_fixed() -> retirement_heatmap
+
+
+# Save the heatmap as a JPEG file
+ggsave(filename = "Visualizations/retirement_heatmap.jpeg", plot = retirement_heatmap, width = 10, height = 6, dpi = 300)
