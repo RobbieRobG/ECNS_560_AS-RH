@@ -1,0 +1,55 @@
+---
+title: "Untitled"
+author: "Alec Stamm and Robert Hurly"
+date: "2024-11-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(gganimate)
+library(tidyr)
+```
+
+Introduction
+Topic and Motivation
+This analysis explores demographic, economic, and fiscal data to identify trends and patterns across U.S. states over time, focusing on variables such as age distributions, debt-to-income ratios, GDP, and state revenue sources. This work will set the stage for further analysis on how these factors correlate and vary by geography and time, providing context for evaluating economic health and demographic changes. Our primary focus is identifying causal relationships between our county level data and household debt-to-income ratios, controlling for numerous State level policies.
+
+Data Description
+The dataset combines demographic data, state GDP, household debt-to-income ratios, and state fiscal revenue data. Key outcome variables include age distribution proportions, debt-to-income ratios, and state tax revenue by source. Data spans 2000–2023, aggregated at the state level, and has been cleaned and merged to facilitate consistent analysis.
+
+Data Processing
+Wrangling and Cleaning
+The data was imported from multiple CSV files, merged based on common fields (County/State FIPS and Year), and cleaned for consistency. Variables were standardized in terms of data types and units. Quarterly debt-to-income ratios were aggregated to annual data by taking the mean per county and year, and population age demographics were converted to proportions of the total population for each county in each year from the gross totals. We will likely end up logging most of the fiscal variables when we run regressions to account for long right tails in county level data (e.g. there are many more counties without major cities than there are with major cities, such as New York City).
+
+Merging Datasets
+Demographic and GDP data were merged, followed by merging this combined dataset with debt-to-income data and fiscal revenue data. The final dataset reflects state-level statistics, allowing for longitudinal and categorical analyses.
+
+
+Key Variables
+Our primary variables of interest are age distributions by category, debt-to-income ratios, real GDP, and revenue by tax source. Visualizations aim to illustrate trends, relationships, and distributions among these variables.
+
+## Debt-to-Income Ratios
+
+![Debt-to-Income Ratios](C:\Users\Al\OneDrive\Documents\GitHub\ECNS_560_AS-RH\Visualizations\debt_to_income_distribution_animation.gif)
+
+This shows the distribution of household debt-to-income ratios over time, which will serve as our dependent variable in our modelling. The left plot shows the lower bound estimate from our dataset, and the right show the upperbound. They do not seem to be drastically different, but we include both for the time being and may utilize both in separate regressions to serve as a robustness check. Ex ante, the sharp rise and subsequent decline after 2011 seems to reflect the impacts of the post- 2008 recession recovery. For this and the subsequent graphics, we aggregated all of the counties for the time being to show the overall national trends, rather than having 51 State graphs overlapping (even more counties). Our modeling will focus on county level trends, however. 
+
+## Age Group Distribution
+
+![Age Group Distribution](C:\Users\Al\OneDrive\Documents\GitHub\ECNS_560_AS-RH\Visualizations\age_proportion_distribution_animation.gif)
+
+This shows the proportion of the total population in each age catagory overtime. The largest visual pattern is the aging of the Baby Boomer generation, which is at current retiring in large numbers. 
+
+## Real GDP Histogram
+
+![Real GDP Histogram](C:\Users\Al\OneDrive\Documents\GitHub\ECNS_560_AS-RH\Visualizations\real_gdp_distribution_animation.gif)
+
+## Tax Revenue Over Time
+
+![Tax Revenue Over Time](C:\Users\Al\OneDrive\Documents\GitHub\ECNS_560_AS-RH\Visualizations\StateTaxRevenueOverTime.jpeg)
+
+

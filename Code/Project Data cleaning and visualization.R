@@ -56,6 +56,16 @@ Merged_Population_SAGDP_DebtToIncomeRatio_Data <- Merged_Population_SAGDP_Data %
 
 write.csv(Merged_Population_SAGDP_DebtToIncomeRatio_Data, "Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv", row.names = FALSE)
 
+
+
+data1 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/ALMOST_FINAL_________Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv")
+data2 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/State_Finances_All_Years.csv")
+
+FinalDataset <- data1 |> full_join(data2, by = c("State", "Year"))
+
+write.csv(FinalDataset, "FinalDataset.csv", row.names = FALSE)
+
+
 #------------------------------------------------------------------------------------------------------------------------------
 
 #Visualizing key variables:
@@ -234,57 +244,80 @@ ggsave(filename = "real_gdp_histogram.jpeg", plot = gdp_histogram_plot, width = 
 
 
 
+#Taxes Visualization:
+
+revenue_data <- FinalDataset %>%
+  pivot_longer(cols = c("Taxes"), names_to = "Revenue_Source", values_to = "Amount")
+
+tax_plot <- ggplot(revenue_data, aes(x = Year, y = Amount, fill = Revenue_Source)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Revenue Sources Over Time",
+       x = "Year",
+       y = "Revenue (in dollars)") +
+  theme_minimal()
+
+ggsave(filename = "StateTaxRevenueOverTime.jpeg", plot = tax_plot, width = 10, height = 6, dpi = 300)
 
 
-# HEATMAP OF RETIRMENT AGE POPULATION BY STATE AND YEAR
 
-state_data = read_csv("2. Merged Data/FinalDataset.csv")
+#Revenue Breakdown
 
-# creates count of population older 65 and older
-retirement_age = state_data|>
-  select(State, CTYNAME, Year, POPESTIMATE,starts_with("AGE"))|>
-  mutate(Retirement_Age_Proportion = AGE6569_PROP + AGE7074_PROP + 
-           AGE7579_PROP + AGE8084_PROP + AGE85PLUS_PROP)|>
-  filter(!is.na(State))
+library(tidyr)
+library(ggplot2)
 
-# Summarize the data to get a unique value for each State and Year
-retirement_age_summary <- retirement_age %>%
-  group_by(State, Year) %>%
-  summarize(Retirement_Age_Proportion = mean(Retirement_Age_Proportion, na.rm = TRUE), .groups = 'drop')|>
-  filter(!is.na(Retirement_Age_Proportion) & !is.nan(Retirement_Age_Proportion))
+# Select the relevant columns and pivot to long format
+revenue_categories <- FinalDataset %>%
+  select(Year, State, Property, Sales.and.gross.receipts, General.sales, Selective.sales, 
+         Motor.fuel, Alcoholic.beverage, Tobacco.products, Public.utilities, 
+         Other.selective.sales, Individual.income, Corporate.income, 
+         Motor.vehicle.license, Other.taxes) %>%
+  pivot_longer(cols = Property:Other.taxes, names_to = "Revenue_Source", values_to = "Amount")
 
-# Check the structure of the summarized data
-print(head(retirement_age_summary))
-print(unique(retirement_age_summary$Year))
-print(unique(retirement_age_summary$State))
+# Create the stacked bar chart
+tax_plot2 <- ggplot(revenue_categories, aes(x = Year, y = Amount, fill = Revenue_Source)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Revenue Sources by Over Time, All States",
+       x = "Year",
+       y = "Revenue (in dollars)") +
+  theme_minimal() 
 
-# Ensure Year is a factor with levels in the correct order
-retirement_age_summary$Year <- factor(retirement_age_summary$Year, 
-                                      levels = sort(unique(retirement_age_summary$Year)))
+ggsave(filename = "StateTaxRevenueOverTimebySource.jpeg", plot = tax_plot2, width = 10, height = 6, dpi = 300)
 
-# Create the heatmap
-ggplot(retirement_age_summary, aes(x = Year, y = State, fill = Retirement_Age_Proportion)) +
-  geom_tile(color = "white") +  # Adds borders to tiles
+
+
+
+#GDP gif
+
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+library(gganimate)
+
+# Specify the variable for Real GDP
+gdp_variable <- "Real.GDP..millions.of.chained.2017.dollars..1."
+
+# Create the ggplot object for boxplots with GDP over time
+gdp_plot <- ggplot(FinalDataset, aes(x = as.factor(Year), y = log(.data[[gdp_variable]]))) +
+  geom_boxplot(aes(fill = as.factor(Year)), outlier.shape = NA, alpha = 0.5) +  # Boxplot to visualize GDP distribution
+  geom_jitter(width = 0.2, alpha = 0.3) +  # Add jitter for distribution of points
   labs(
-    title = "Retirement Age Proportion of State Population",
-    x = "Year",
-    y = "State",
-    fill = "Retirement Age Proportion"
+    title = "Distribution of Real GDP by Year from 2011-2023",
+    y = "Real GDP (Millions of Chained 2017 Dollars, Logged)",
+    x = "Year"
   ) +
   theme_minimal() +
-  scale_fill_viridis_c(option = "D") +
   theme(
-    axis.text.x = element_text(angle = 80, hjust = 1, size = 8, color = "black"),  
-    axis.text.y = element_text(size = 8, color = "black"), 
-    plot.title = element_text(size = 14, color = "black", face = "bold"), 
-    axis.title.x = element_text(size = 12, color = "black"),
-    axis.title.y = element_text(size = 12, color = "black") 
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 14),
+    axis.title.x = element_text(size = 16),
+    axis.title.y = element_text(size = 16),
+    plot.title = element_text(size = 18),
+    legend.position = "none"
   ) +
-  coord_fixed() -> retirement_heatmap
+  transition_states(Year, transition_length = 2, state_length = 1, wrap = FALSE) +  # Animate by Year
+  ease_aes('linear')  # Smooth transition
 
-
-# Save the heatmap as a JPEG file
-ggsave(filename = "Visualizations/retirement_heatmap.jpeg", plot = retirement_heatmap, width = 10, height = 6, dpi = 300)
-
-
+# Save the animated plot as a GIF
+gdp_animation <- animate(gdp_plot, nframes = 26, width = 800, height = 600)
+anim_save("real_gdp_distribution_animation.gif", animation = gdp_animation)
 
