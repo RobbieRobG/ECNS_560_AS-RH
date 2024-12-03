@@ -30,6 +30,21 @@ st_fin_2021 = read_excel("1. Raw Data/Excel_cleaned_state_finances/StateFinances
                          col_names = F)
 st_fin_2010 = read_excel("1. Raw Data/Excel_cleaned_state_finances/2010.xlsx",
                          col_names = F)
+# adding in missing data for 2010 - 2016
+st_fin_2010b = read_excel("1. Raw Data/Excel_cleaned_state_finances/2010-2016 addendum/2010b.xlsx",
+                          col_names = F)
+st_fin_2011b = read_excel("1. Raw Data/Excel_cleaned_state_finances/2010-2016 addendum/2011b.xlsx",
+                          col_names = F)
+st_fin_2012b = read_excel("1. Raw Data/Excel_cleaned_state_finances/2010-2016 addendum/2012b.xlsx",
+                          col_names = F)
+st_fin_2013b = read_excel("1. Raw Data/Excel_cleaned_state_finances/2010-2016 addendum/2013b.xlsx",
+                          sheet = 2, col_names = F)
+st_fin_2014b = read_excel("1. Raw Data/Excel_cleaned_state_finances/2010-2016 addendum/2014b.xlsx",
+                          col_names = F)
+st_fin_2015b = read_excel("1. Raw Data/Excel_cleaned_state_finances/2010-2016 addendum/2015b.xlsx",
+                          col_names = F)
+st_fin_2016b = read_excel("1. Raw Data/Excel_cleaned_state_finances/2010-2016 addendum/2016b.xlsx",
+                          col_names = F)
 # FUNCTION: renaming columns in a dataframe ----------
 
 rename_columns = function(data) {
@@ -138,7 +153,7 @@ make_tidy = function(st_fin_year) {
 # st_fin_2020_tidy = make_tidy(st_fin_2020)
 # st_fin_2021_tidy = make_tidy(st_fin_2021)
 
-st_fin_2010 <- st_fin_2010|>
+st_fin_2010 = st_fin_2010|>
   mutate_all(as.character)
 
 all_st_fin_tidy = make_tidy(st_fin_2011)|>
@@ -152,8 +167,21 @@ all_st_fin_tidy = make_tidy(st_fin_2011)|>
   bind_rows(make_tidy(st_fin_2019))|>
   bind_rows(make_tidy(st_fin_2020))|>
   bind_rows(make_tidy(st_fin_2021))|>
-  bind_rows(make_tidy(st_fin_2010))
+  bind_rows(make_tidy(st_fin_2010))|>
+  bind_rows(make_tidy(st_fin_2010b))|>
+  bind_rows(make_tidy(st_fin_2011b))|>
+  bind_rows(make_tidy(st_fin_2012b))|>
+  bind_rows(make_tidy(st_fin_2013b))|>
+  bind_rows(make_tidy(st_fin_2014b))|>
+  bind_rows(make_tidy(st_fin_2015b))|>
+  bind_rows(make_tidy(st_fin_2016b))|>
+  filter(!is.na(State)) 
   
+# check state counts for error checking:
+state_counts = all_st_fin_tidy %>%
+  group_by(State) |>
+  summarise(Count = n())
+
 # all_st_fin_tidy <- all_st_fin_tidy|>
 #   mutate_all(as.character)
 # 
@@ -172,3 +200,4 @@ all_st_fin_tidy = make_tidy(st_fin_2011)|>
 # SAVING
 saveRDS(all_st_fin_tidy, '2. Merged Data/State_Finances_All_Years.rds')
 write.csv(all_st_fin_tidy, "2. Merged Data/State_Finances_All_Years.csv", row.names = F)
+
