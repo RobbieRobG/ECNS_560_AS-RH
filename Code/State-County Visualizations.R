@@ -6,6 +6,7 @@ library(units)
 library(viridis)
 library(magick)
 library(purrr)
+library(readxl)
 
 # load data
 counties = st_read("1. Raw Data/US Shapefiles/cb_2018_us_county_20m/cb_2018_us_county_20m.shp")|>
@@ -41,7 +42,7 @@ break_labels = c("0–7", "7–14", "14–21", "21–28", "28–35", "35+")
 heatmaps = unique(popdata$YEAR) |>
   sort() |>
   map(function(year) {
-    counties_year <- counties_pop |>
+    counties_year = counties_pop |>
       filter(YEAR == !!year) # Ensure YEAR exists in counties_pop
 
     tm_shape(counties_year) +
@@ -152,9 +153,56 @@ heatmap_gif = image_read(image_files) |>
   image_write("Visualizations/population_heatmap_animation.gif")
 
 
-# HEATMAP FOR DEPT TO GDP RATIO------------------- 
-  # load in dept-gdp ratios buy county
-debt_data = "2. Merged Data/FinalDataset.csv"
-
-county_debt_ratios = |>
-  left_join(popdata, by = "FIPS")
+# HEATMAP FOR DEPT TO INCOME RATIO (not feasible)------------------- 
+#   # load in dept-gdp ratios buy county
+# debt_data = read_excel("2. Merged Data/FinalDataset1.xlsx")|>
+#   rename(BAD_FIPS = FIPS)
+# # fix finaldata fips
+# popdata_FIPS = popdata |>
+#   select(CTYNAME, FIPS)|>
+#   group_by(CTYNAME) |>
+#   summarize(FIPS = first(FIPS))|>
+#   ungroup()
+# 
+# debt_data2 = debt_data |>
+#   left_join(popdata_FIPS, by = "CTYNAME")
+# 
+# county_debt_ratios = counties|>
+#   left_join(debt_data2, by = "FIPS")
+# 
+#   #heatmap:
+# heatmaps_dti_ratio = unique(county_debt_ratios$Year) |>
+#   sort() |>
+#   map(function(year) {
+#     counties_year = debt_data2 |>
+#       filter(Year == !!year) # Ensure YEAR exists in counties_pop
+#     
+#     tm_shape(county_debt_ratios) +
+#       tm_polygons("Annual_Debt_to_income_ratio_low",
+#                   title = "Average Debt to\n Income Ratio",
+#                   palette = "magma",
+#                   #breaks = breaks,
+#                   #legend.labels = break_labels,
+#                   border.alpha = .1,
+#                   lwd = 0.1) +
+#       tm_layout(
+#         title = paste("Debt to Income Ratio Heatmap:", year),
+#         title.position = c("center", "top"),
+#         title.size = 1.5,
+#         title.color = "black",
+#         legend.text.color = "black",
+#         legend.title.color = "black",
+#         title.fontface = "bold",
+#         legend.title.size = .9,
+#         legend.title.fontface = "bold",
+#         legend.text.size = 0.7,
+#         legend.text.fontface = "bold",
+#         legend.position = c("left", "bottom"),
+#         legend.format = list(text.align = "center"),
+#         legend.bg.color = "white",
+#         legend.bg.alpha = 0.9,
+#         legend.frame = TRUE,
+#         inner.margins = c(0.16, 0.05, 0.14, 0.05)
+#       )
+#   })
+# heatmaps_dti_ratio[[1]]
