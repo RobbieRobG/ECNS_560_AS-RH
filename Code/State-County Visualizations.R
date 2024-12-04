@@ -75,7 +75,7 @@ heatmaps = unique(popdata$YEAR) |>
 
 
 # save heatmaps
-
+  
 heatmaps_save = "Visualizations/population_heatmap_images/"
 if (!dir.exists(heatmaps_save)) dir.create(heatmaps_save)
 
@@ -144,8 +144,17 @@ all_years_map = counties_pop |>
 
 # HEATMAP ANIMATION THROUGH YEARS 2nd ATTEMPT------------------
   # Path to heatmap images
+  # some manual adjustments were made to names, a sort function could probably be used here
 image_files = list.files(heatmaps_save, pattern = "heatmap_.*\\.png", full.names = TRUE)
   # Read and combine images into a GIF
 heatmap_gif = image_read(image_files) |>
   image_animate(fps = 1) |>
   image_write("Visualizations/population_heatmap_animation.gif")
+
+
+# HEATMAP FOR DEPT TO GDP RATIO------------------- 
+  # load in dept-gdp ratios buy county
+debt_data = "2. Merged Data/FinalDataset.csv"
+
+county_debt_ratios = |>
+  left_join(popdata, by = "FIPS")
