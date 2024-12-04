@@ -10,7 +10,7 @@ library(readxl)
 
 
 
-file_path <- "C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/FinalDataset1.xlsx"
+file_path <- "2. Merged Data/FinalDataset1.xlsx"
 FinalDataset <- read_excel(file_path)
 
 
