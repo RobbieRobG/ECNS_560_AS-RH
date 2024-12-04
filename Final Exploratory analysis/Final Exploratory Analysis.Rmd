@@ -1,0 +1,150 @@
+---
+title: "Final Exploratory analysis"
+author: "Alec Stamm and Robert Hurly"
+date: "2024-12-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(htmltools)
+```
+
+---
+title: "ElasticNet Regression Analysis and Predictive Modeling"
+author: "Your Name"
+output: html_document
+---
+
+## Motivation
+
+In this analysis, we aim to explore the relationship between various demographic, economic, and fiscal variables and the `Annual_Debt_to_income_ratio_low`. This variable is a lower-bound estimate of the county-level debt to income ratio. `Annual_Debt_to_income_ratio_high` serves as an upper-bound. In our analysis we tested both a a robustness check, but exclude it from this report for brevity because no signficicant difference in the results was observed. 
+
+This is a descriptive regression analysis where we use ElasticNet regression to quantify the associations and perform predictive analysis. The motivation behind this study is to understand how different factors influence the debt-to-income ratio at the county level and use the model to predict future values of this ratio. In addition to this, we use the variables selected in the elasticnet model to create a linear model on the panel data for potential causal inference. 
+
+To better understand this relationship from the standpoint of causal inference, we also applied a fixed effects panel regression model. This model controls for individual heterogeneity at the county level, allowing for more precise estimation of relationships between the variables and the target debt-to-income ratio. The motivation here is to explore how these factors change over time within each county, thereby accounting for unobserved time-invariant characteristics.
+
+## Methods
+
+We begin by preparing the dataset for econometric analysis. The dataset includes various demographic and economic variables at the county level across multiple years. The dataset is cleaned and transformed to make it suitable for panel data analysis.
+
+### Panel Data Structure
+
+The dataset is first transformed into a panel format by creating a unique identifier for each county based on its state and county name. We then ensure that the data is structured correctly for panel analysis, using `UniqueID` and `Year` as the panel indices. After that, we standardize all numeric variables within each county (identified by `UniqueID`) to account for differing scales of the variables.
+
+### Predictive Modeling with Elasticnet
+
+We selected the `Annual_Debt_to_income_ratio_low` variable as the target for prediction. To predict this variable, we use ElasticNet regression, which is a regularization technique that combines both Lasso (L1) and Ridge (L2) penalties. ElasticNet is particularly useful when there are many correlated predictors.
+
+The data is split into a training set (80%) and a test set (20%). We then fit the ElasticNet model using cross-validation to find the optimal regularization parameter, `lambda`. The cross-validation results indicate the best value of lambda to minimize prediction error.
+
+## Results
+
+### Cross-Validation and Model Fit
+
+The ElasticNet model is fitted on the training data, and we obtain the optimal lambda value from cross-validation. The lambda that minimizes the mean squared error is:
+
+**Optimal lambda (from cross-validation):** 0.0002784226
+
+The model's performance is evaluated on the test set by calculating the **Mean Squared Error (MSE)**:
+
+**MSE on Test Set:** 0.813388
+
+This indicates that the model has a relatively low error, suggesting a good fit for the data.
+
+### Coefficients
+
+The model's coefficients represent the relationship between each predictor and the target variable, `Annual_Debt_to_income_ratio_low`. Some key coefficients are:
+
+- **Positive coefficients**: Variables like `Compensation` and `Taxes on production and imports` have positive coefficients, indicating that as these variables increase, the `Annual_Debt_to_income_ratio_low` tends to increase as well.
+- **Negative coefficients**: Variables such as `Real GDP` show negative coefficients, meaning that as GDP increases, the debt-to-income ratio tends to decrease.
+
+The coefficients help quantify the magnitude and direction of relationships between the predictors and the response variable.
+
+### Performance Evaluation
+
+The performance of the ElasticNet model is assessed through cross-validation and MSE. The optimal lambda value helps balance model complexity and predictive accuracy. The low MSE indicates that the model is able to predict the debt-to-income ratio with reasonable accuracy.
+
+## Interpretation
+
+### Predictive Modeling Insights
+
+The primary focus of this analysis was predictive modeling, where we used ElasticNet to predict the `Annual_Debt_to_income_ratio_low` based on a variety of socioeconomic and fiscal variables. The model's performance, reflected in the MSE, suggests that the selected variables capture important information for predicting the target variable.
+
+### Coefficient Interpretation
+
+- The positive coefficients indicate variables that contribute to increasing the debt-to-income ratio, such as higher compensation and taxes on production and imports.
+- Conversely, negative coefficients like that for GDP suggest that stronger economic performance (as measured by GDP) is associated with lower debt-to-income ratios, which could be indicative of improved fiscal health.
+
+### Limitations and Further Steps
+
+While the predictive model provides useful insights, there are limitations to its ability to capture complex, non-linear relationships between variables. Future steps could include exploring more advanced machine learning techniques or using the model for more granular forecasting. Additionally, understanding the potential sources of bias, especially in terms of omitted variables or unmeasured confounders, is important for making the results more reliable.
+
+
+## Additional Analysis: Fixed Effects Panel Regression
+
+### Methods
+
+The process involved several steps:
+1. **Variable Selection**: Based on prior analysis, we selected a subset of variables that were found to have significant coefficients in the ElasticNet model. These variables are likely to have the most influence on the debt-to-income ratio, and using elasticnet to select them helps reduce the likelyhood of our analysis being influenced by ommitted variables bias. 
+
+2. **Data Preparation**: A new dataset was created, which includes only the `UniqueID`, `Year`, `Annual_Debt_to_income_ratio_low`, and the selected variables. This dataset was then arranged by county (`UniqueID`) and year (`Year`).
+
+3. **Fixed Effects Model**: A fixed effects panel regression was run using the `plm` package in R, with `Annual_Debt_to_income_ratio_low` as the dependent variable and all selected variables as independent variables. The model controls for individual (county) effects by including a "within" specification.
+
+### Results
+
+The output of the fixed effects model provides estimates for both the time effects (from the `Year` variables) and the county-level characteristics. 
+```{r}
+# Specify the relative path to the saved stargazer HTML file
+file_path <- "output/fixed_effects_table_no_years.html"
+
+# Use the includeHTML function to display the saved HTML content
+includeHTML(file_path)
+
+```
+
+#### Key Findings
+
+- **Year Variables**: The coefficients for the year variables show a significant increasing trend in the `Annual_Debt_to_income_ratio_low` from 2001 to 2023. For instance, the coefficient for `Year2023` is 3.67, indicating that the debt-to-income ratio has increased by approximately 3.67 percentage points between 2001 and 2023, holding other factors constant. This result is statistically significant with a p-value of < 2.2e-16.
+  
+- **Demographic Variables**: Several age-related proportions show significant positive relationships with the debt-to-income ratio:
+  - **AGE04_PROP** (Proportion of population aged 0-4): Coefficient of 0.0226, significant at the 1% level.
+  - **AGE59_PROP** (Proportion of population aged 59+): Coefficient of 0.0353, also significant at the 1% level.
+  - **AGE2529_PROP** (Proportion of population aged 25-29): Coefficient of 0.0124, significant at the 1% level.
+  - **AGE3034_PROP** (Proportion of population aged 30-34): Coefficient of -0.0402, significant at the 1% level, indicating a negative relationship with the debt-to-income ratio.
+  
+- **Economic Variables**: Key economic indicators have notable effects:
+  - **Real GDP**: Coefficient of 0.1127, significant at the 1% level, showing a positive association between GDP and the debt-to-income ratio.
+  - **Compensation**: Coefficient of -0.5307, highly significant (p-value < 2.2e-16), suggesting that higher compensation is associated with a lower debt-to-income ratio.
+  - **Gross Operating Surplus**: Coefficient of -0.4699, significant at the 1% level, indicating a similar negative relationship with the debt-to-income ratio.
+  - **Taxes on Production and Imports (TOPI)**: Coefficient of 0.2966, significant at the 1% level, suggesting that higher taxes on production and imports are positively correlated with the debt-to-income ratio.
+
+#### Model Statistics
+
+- **R-Squared**: The fixed effects model explains about 22.05% of the variance in the debt-to-income ratio, with an adjusted R-squared of 18.60%.
+- **F-statistic**: The model is highly significant with an F-statistic of 433.29 (p-value < 2.22e-16), indicating that the model fits the data well.
+
+### Interpretation
+
+The fixed effects model suggests that both time-varying factors (such as GDP, compensation, and taxes) and demographic variables have significant effects on the annual debt-to-income ratio. The results highlight trends over time, such as the steady increase in debt-to-income ratios from 2001 to 2023, while also revealing the impact of various age groups and economic factors. 
+
+- The increase in debt-to-income ratios over time might reflect broader economic trends or policy changes that influence county-level fiscal conditions.
+- Demographic trends, particularly the share of younger and older populations, appear to influence the debt-to-income ratio in varying ways, with some age groups contributing positively and others negatively.
+- Economic factors such as GDP and compensation have notable predictive power, but with opposite signs, indicating complex relationships where economic growth might increase the debt burden, while higher compensation could reduce it.
+
+### Limitations and Further Steps
+
+The fixed effects model accounts for unobserved county-level heterogeneity but does not address potential endogeneity or omitted variable bias that could still affect the estimates. Further analysis could include instrumental variable approaches or explore other econometric techniques to deal with these concerns. Additionally, the model assumes linear relationships between predictors and the outcome, which may not fully capture the complexity of the underlying dynamics.
+
+## Conclusion
+
+The fixed effects panel regression adds depth to the analysis by controlling for time-invariant county-specific effects. The results suggest that a combination of economic and demographic factors significantly influences the `Annual_Debt_to_income_ratio_low`, with notable differences across age groups and years. Future work could explore more sophisticated methods to address potential endogeneity and non-linear relationships, providing a more robust understanding of the factors that shape debt-to-income ratios.
+
+
+## Conclusion
+
+This analysis provides a descriptive regression framework for understanding the relationship between various socioeconomic and fiscal factors and the `Annual_Debt_to_income_ratio_low`. ElasticNet regression has been employed to quantify these relationships and predict the debt-to-income ratio. The results show meaningful associations between predictors and the target variable, and the model has demonstrated good predictive performance.
+
+Future work could involve exploring causal inference techniques or enhancing the model with more complex machine learning algorithms to further improve prediction accuracy.
+
