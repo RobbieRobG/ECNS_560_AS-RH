@@ -25,6 +25,7 @@ FinalDataset <- pdata.frame(FinalDataset, index = c("UniqueID", "Year"))
 View(FinalDataset)
 
 
+
 #ELASTICNET MODEL---------------------------------------------------------------------------------------------------------------------------
 
 #ELASTICNET MODEL
@@ -138,3 +139,133 @@ fixed_effects_model <- plm(Annual_Debt_to_income_ratio_low ~ .,
 summary(fixed_effects_model)
 
 
+# CREATING A BUNCH OF PLOTS FOR THE REPORT-----------------------------------------------------------------
+
+# Libraries for plots and tables
+library(knitr)
+library(kableExtra)
+library(gridExtra)
+library(ggplot2)
+
+
+# Plot 1: Cross-validation plot from ElasticNet------------------------------
+
+
+cv_error <- elasticnet_model$cvm
+lambda_values <- elasticnet_model$lambda
+
+# Create a data frame for plotting
+cv_data <- data.frame(Lambda = lambda_values, CV_Error = cv_error)
+
+# Plot the cross-validation error using ggplot2
+cv_plot <- ggplot(cv_data, aes(x = Lambda, y = CV_Error)) +
+  geom_line() +
+  scale_x_log10() +  # Log scale for lambda
+  labs(title = "Cross-Validation Error vs. Lambda", x = "Lambda", y = "Cross-Validation Error") +
+  theme_minimal()
+
+# Save the plot as JPEG
+ggsave(filename = paste(output_dir, "/ElasticNet_CV_Plot.jpg", sep = ""), plot = cv_plot, width = 8, height = 6, dpi = 300)
+
+
+
+# 2. Coefficient Plot from ElasticNet------------------------------
+
+# Convert the coefficients to a data frame
+coefficients_matrix <- as.matrix(best_coefficients)  # Convert coefficients to a matrix
+coefficients_df <- data.frame(Coefficient = coefficients_matrix[, 1])  # Extract the first column (the actual coefficients)
+
+# Add the variable names as a column
+coefficients_df$Variable <- rownames(coefficients_matrix)
+
+# Filter out intercept and zero coefficients
+coefficients_df <- coefficients_df[coefficients_df$Coefficient != 0, ]
+coefficients_df <- coefficients_df[coefficients_df$Variable != "(Intercept)", ]  # Remove intercept
+
+# Reorder the variables by coefficient values for better visualization
+coefficients_df$Variable <- factor(coefficients_df$Variable, levels = coefficients_df$Variable[order(coefficients_df$Coefficient)])
+
+# Create the coefficient plot
+coefficients_plot <- ggplot(coefficients_df, aes(x = Variable, y = Coefficient)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotate x labels for better readability
+  labs(title = "ElasticNet Coefficients", x = "Variables", y = "Coefficients") +
+  theme_minimal()
+
+# Save the plot as JPEG
+ggsave(filename = paste(output_dir, "/ElasticNet_Coefficients_Plot_Manual.jpg", sep = ""), 
+       plot = coefficients_plot, width = 8, height = 6, dpi = 300)
+
+
+
+
+
+# Plot 3: Residuals Plot-----------------------------------------
+
+# Calculate residuals
+# Calculate residuals
+residuals <- y_test - predictions
+
+# Create a data frame for residuals with the correct column name
+residuals_df <- data.frame(Residuals = residuals)
+
+# Ensure the column name is correctly set to "Residuals"
+colnames(residuals_df) <- c("Residuals")
+
+# Check the structure of the residuals_df data frame
+str(residuals_df)
+
+# Verify the column names
+print(colnames(residuals_df))  # Should print "Residuals"
+
+# Plot residuals distribution
+residuals_plot <- ggplot(residuals_df, aes(x = Residuals)) +
+  geom_histogram(bins = 30, fill = "skyblue", color = "black") +
+  labs(title = "Residuals Distribution", x = "Residuals", y = "Frequency") +
+  theme_minimal()
+
+# Save the residuals plot as JPEG
+ggsave(filename = paste(output_dir, "/Residuals_Plot_Manual.jpg", sep = ""), 
+       plot = residuals_plot, width = 8, height = 6, dpi = 300)
+
+
+
+
+# Plot 4: Prediction vs Actual Plot
+
+# Ensure predictions is a vector (if it's a matrix, convert it to a vector)
+predictions <- as.vector(predictions)
+
+# Create a data frame for Predicted vs Actual values
+pred_vs_actual_df <- data.frame(Predicted = predictions, Actual = y_test)
+
+# Verify the column names of the data frame
+print(colnames(pred_vs_actual_df))  # Should print "Predicted" and "Actual"
+
+# Plot Predicted vs Actual values
+pred_vs_actual_plot <- ggplot(pred_vs_actual_df, aes(x = Actual, y = Predicted)) +
+  geom_point(color = "darkblue") +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Predicted vs Actual", x = "Actual Values", y = "Predicted Values") +
+  theme_minimal()
+
+# Save the Predicted vs Actual plot as JPEG
+ggsave(filename = paste(output_dir, "/Predicted_vs_Actual_Plot_Manual.jpg", sep = ""), 
+       plot = pred_vs_actual_plot, width = 8, height = 6, dpi = 300)
+
+
+
+
+# Plot 5: Significant Variables in Fixed Effects Model
+fixed_effects_coeffs <- summary(fixed_effects_model)$coefficients
+fixed_effects_df <- data.frame(Variable = rownames(fixed_effects_coeffs), 
+                               Coefficient = fixed_effects_coeffs[, 1], 
+                               P_value = fixed_effects_coeffs[, 4])
+significant_vars <- fixed_effects_df[fixed_effects_df$P_value < 0.05, ]
+significant_vars_plot <- ggplot(significant_vars, aes(x = reorder(Variable, Coefficient), y = Coefficient)) +
+  geom_bar(stat = "identity", fill = "lightgreen", color = "black") +
+  coord_flip() +
+  labs(title = "Significant Variables in Fixed Effects Model", x = "Variables", y = "Coefficient") +
+  theme_minimal()
+ggsave(filename = paste(output_dir, "/Significant_Variables_Plot_Manual.jpg", sep = ""), 
+       plot = significant_vars_plot, width = 8, height = 6, dpi = 300)
