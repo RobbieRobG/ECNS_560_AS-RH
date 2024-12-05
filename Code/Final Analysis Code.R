@@ -5,13 +5,11 @@ library(plm)
 library(dplyr)
 library(ggplot2)
 library(glmnet)
-library(tictoc)
 library(readxl)
 
-
-
-file_path <- "2. Merged Data/FinalDataset1.xlsx"
-FinalDataset <- read_excel(file_path)
+setwd("C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets")
+file_path <- "RealFinalData.csv"
+FinalDataset <- read.csv(file_path)
 
 
 #Generating an ID variable for the counties
@@ -30,13 +28,8 @@ View(FinalDataset)
 
 #ELASTICNET MODEL
 
-# Standardize numeric variables within each UniqueID (panel entity)
-FinalDataset <- FinalDataset %>%
-  group_by(UniqueID) %>%
-  mutate(across(where(is.numeric), ~ scale(.) %>% as.vector())) %>%
-  ungroup()
 
-# Step 2: Prepare Data for ElasticNet
+# Prepare Data for ElasticNet
 # Define independent variables (X) and dependent variable (y)
 
 X <- as.matrix(FinalDataset %>%
@@ -77,7 +70,6 @@ y <- y[complete_cases]
 # Set the seed for reproducibility
 set.seed(123)  # For reproducibility
 
-
 # Define training (80%) and testing (20%) indices
 train_indices <- sample(seq_len(nrow(X)), size = 0.8 * nrow(X))
 
@@ -87,7 +79,7 @@ y_train <- y[train_indices]
 X_test <- X[-train_indices, ]
 y_test <- y[-train_indices]
 
-
+unique(y_train)
 
 # Fit ElasticNet model using cross-validation to find optimal lambda
 elasticnet_model <- cv.glmnet(X_train, y_train, alpha = 0.5, family = "gaussian")
@@ -114,7 +106,37 @@ print(best_lambda)
 # Get the coefficients for the optimal lambda
 best_coefficients <- coef(elasticnet_model, s = "lambda.min")
 print(best_coefficients)
-toc()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -123,6 +145,13 @@ toc()
 # Step 5: Extract Significant Variables
 selected_variables <- rownames(best_coefficients)[which(best_coefficients != 0)]
 selected_variables <- selected_variables[selected_variables != "(Intercept)"]  # Remove intercept
+
+
+library(car)
+
+
+vif(lm(Annual_Debt_to_income_ratio_low ~ ., data = FinalDataset_selected))
+
 
 # Step 6: Prepare Data for Fixed Effects Panel Regression
 FinalDataset_selected <- FinalDataset %>%
@@ -135,7 +164,51 @@ fixed_effects_model <- plm(Annual_Debt_to_income_ratio_low ~ .,
                            index = c("UniqueID", "Year"), 
                            model = "within")
 
+fixed_effects_model
 # View the summary of the fixed effects model
+summary(fixed_effects_model)
+
+library(stargazer)
+
+# Load necessary library
+library(stargazer)
+
+# Set the file path for saving the output as HTML
+file_path <- "C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Final Exploratory analysis/fixed_effects_table.html"
+
+# Generate and save the stargazer output as HTML
+stargazer(fixed_effects_model, 
+          type = "html",    # Use "html" type for output
+          title = "Fixed Effects Regression Results",  
+          column.labels = c("Fixed Effects Model"),   
+          dep.var.labels = c("Dependent Variable"),    
+          model.names = FALSE,   
+          digits = 3,
+          out = file_path   # Save the output directly to the file
+)
+
+
+# Load necessary library
+library(stargazer)
+
+# Set the file path for saving the output as HTML
+file_path <- "C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Final Exploratory analysis/fixed_effects_table_no_years.html"
+
+# Create a vector with the names of the year variables you want to omit
+year_vars <- grep("^Year", names(fixed_effects_model$coefficients), value = TRUE)
+
+# Generate and save the stargazer output as HTML, omitting year variables
+stargazer(fixed_effects_model, 
+          type = "html",    # Use "html" type for output
+          title = "Fixed Effects Regression Results",  
+          column.labels = c("Fixed Effects Model"),   
+          dep.var.labels = c("Annual_Debt_to_income_ratio_low"),    
+          model.names = FALSE,   
+          digits = 3,
+          omit = year_vars,     # Omit the year variables from the table
+          out = file_path       # Save the output directly to the file
+)
+
 summary(fixed_effects_model)
 
 
@@ -269,3 +342,10 @@ significant_vars_plot <- ggplot(significant_vars, aes(x = reorder(Variable, Coef
   theme_minimal()
 ggsave(filename = paste(output_dir, "/Significant_Variables_Plot_Manual.jpg", sep = ""), 
        plot = significant_vars_plot, width = 8, height = 6, dpi = 300)
+
+
+
+
+
+
+
