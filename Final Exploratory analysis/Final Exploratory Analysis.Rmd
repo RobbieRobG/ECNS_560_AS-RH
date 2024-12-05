@@ -11,7 +11,7 @@ library(htmltools)
 ```
 
 ---
-title: "ElasticNet Regression Analysis and Predictive Modeling"
+title: "Demographics and Debt: Investigating the Impact of Age Distributions on County-Level Debt-to-Income Ratios in the United States"
 author(s): "Alec Stamm and Robert Hurly"
 output: html_document
 ---
