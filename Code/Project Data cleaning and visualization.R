@@ -66,6 +66,34 @@ FinalDataset <- data1 |> full_join(data2, by = c("State", "Year"))
 write.csv(FinalDataset, "FinalDataset.csv", row.names = FALSE)
 
 
+
+
+
+# Load required libraries
+library(dplyr)
+
+# Define file paths for the two datasets
+population_file <- "C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/ALMOST_FINAL_________Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv"
+finances_file <- "C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/State_Finances_All_Years.csv"
+
+# Load the datasets into R
+population_data <- read.csv(population_file)
+finances_data <- read.csv(finances_file)
+
+# Merge the datasets by 'state' and 'year'
+merged_data <- merge(population_data, finances_data, by = c("State", "Year"), all = TRUE)
+
+# Define the file path for saving the merged dataset
+output_file <- "C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/merged_population_finances_data.csv"
+
+# Save the merged dataset as a CSV file
+write.csv(merged_data, output_file, row.names = FALSE)
+
+# Confirm completion
+cat("Merged dataset has been saved as:", output_file)
+
+
+
 #------------------------------------------------------------------------------------------------------------------------------
 
 #Visualizing key variables:
@@ -297,11 +325,11 @@ ggsave(filename = "debt_to_income_histogram_high.jpeg", plot = histogram_high_pl
 #Economic Variables
 
 # Create a histogram for Real GDP
-gdp_histogram_plot <- ggplot(Merged_Population_SAGDP_DebtToIncomeRatio_Data, aes(x = Real.GDP..millions.of.chained.2017.dollars..1.)) +
+gdp_histogram_plot <- ggplot(FinalDataset, aes(x = Real.GDP..millions.of.chained.2017.dollars..1.)) +
   geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +  # Adjust binwidth as necessary
   labs(
     title = "Histogram of Real GDP (Millions of Chained 2017 Dollars)",
-    x = "Real GDP (Millions of Chained 2017 Dollars)",
+    x = "Real GDP (Millions of Chained 2017 Dollars, logged)",
     y = "Frequency"
   ) +
   theme_minimal() +
@@ -311,6 +339,7 @@ gdp_histogram_plot <- ggplot(Merged_Population_SAGDP_DebtToIncomeRatio_Data, aes
     plot.title = element_text(size = 18)      # Increase size of plot title
   )
 
+gdp_histogram_plot
 # Save the histogram as a JPEG file
 ggsave(filename = "real_gdp_histogram.jpeg", plot = gdp_histogram_plot, width = 10, height = 6, dpi = 300)
 
@@ -443,3 +472,35 @@ ggplot(retirement_age_summary, aes(x = Year, y = State, fill = Retirement_Age_Pr
 
 # Save the heatmap as a JPEG file
 ggsave(filename = "Visualizations/retirement_heatmap.jpeg", plot = retirement_heatmap, width = 10, height = 6, dpi = 300)
+
+
+
+
+
+
+
+
+
+
+
+#STATE TAX REV BY YEAR
+
+
+
+tax_revenue_by_year <- FinalDataset %>%
+  group_by(Year) %>%                      # Group data by "Year"
+  summarise(Total_Tax_Revenue = sum(Taxes, na.rm = TRUE))  # Aggregate tax revenue
+
+# View aggregated data (optional)
+print(tax_revenue_by_year)
+
+# Plot the aggregated tax revenue over time
+ggplot(data = tax_revenue_by_year, aes(x = Year, y = Total_Tax_Revenue)) +
+  geom_line(color = "blue", size = 1.2) +    # Add a line plot
+  geom_point(color = "red", size = 2) +      # Add points for each year
+  labs(
+    title = "Total Tax Revenue Over Time",
+    x = "Year",
+    y = "Total Tax Revenue (USD)"
+  ) +
+  theme_minimal()                            # Use a clean theme for the plot

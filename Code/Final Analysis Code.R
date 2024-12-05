@@ -19,6 +19,7 @@ FinalDataset$UniqueID <- paste(FinalDataset$State, FinalDataset$CTYNAME, sep = "
 # Convert the dataset to a panel data frame
 FinalDataset <- pdata.frame(FinalDataset, index = c("UniqueID", "Year"))
 
+colnames(FinalDataset)
 # View the pdata.frame structure
 View(FinalDataset)
 
@@ -40,11 +41,11 @@ X <- as.matrix(FinalDataset %>%
                    Real.GDP..millions.of.chained.2017.dollars..1., Compensation..millions.of.dollars.,
                    Gross.operating.surplus..millions.of.dollars.,
                    Taxes.on.production.and.imports..TOPI...millions.of.dollars., Subsidies..millions.of.dollars.,
-                   From.State.government1, Taxes, Property, Sales.and.gross.receipts, General.sales, Selective.sales,
+                   Property, Sales.and.gross.receipts, General.sales, Selective.sales,
                    Motor.fuel, Alcoholic.beverage, Tobacco.products, Public.utilities, Other.selective.sales,
                    Individual.income, Corporate.income, Motor.vehicle.license, Other.taxes,
                    Charges.and.miscellaneous.general.revenue, Current.charges, Education,
-                   School.lunch.sales..gross., Hospitals, Highways, Air.transportation..airports.,
+                   Hospitals, Highways, Air.transportation..airports.,
                    Parking.facilities, Sea.and.inland.port.facilities, Natural.resources,
                    Parks.and.recreation, Housing.and.community.development, Sewerage, Solid.waste.management,
                    Other.charges, Capital.outlay, Higher.education, Elementary...secondary, Other.education,
@@ -81,11 +82,37 @@ y_test <- y[-train_indices]
 
 unique(y_train)
 
-# Fit ElasticNet model using cross-validation to find optimal lambda
-elasticnet_model <- cv.glmnet(X_train, y_train, alpha = 0.5, family = "gaussian")
+
+
+
+# Define the sequence of alpha values to search over
+alpha_values <- seq(0, 1, by = 0.05)
+
+# Initialize a list to store cross-validation results
+cv_results <- list()
+
+# Loop over each alpha value
+for (alpha_value in alpha_values) {
+  # Perform cross-validation for this specific alpha
+  cv_results[[as.character(alpha_value)]] <- cv.glmnet(X_train, y_train, alpha = alpha_value, family = "gaussian")
+}
+
+# Now, find the best alpha by comparing cross-validation errors
+cv_errors <- sapply(cv_results, function(model) min(model$cvm))  # Get the minimum cross-validation error for each alpha
+
+# Find the alpha value with the lowest error
+best_alpha <- alpha_values[which.min(cv_errors)]
+best_lambda <- cv_results[[as.character(best_alpha)]]$lambda.min
+
+cat("Optimal alpha: ", best_alpha, "\n")
+cat("Optimal lambda: ", best_lambda, "\n")
+
+# Fit the final Elastic Net model using the best alpha and lambda
+final_model <- glmnet(X_train, y_train, alpha = best_alpha, lambda = best_lambda)
+
 
 # Predict on the test set
-predictions <- predict(elasticnet_model, newx = X_test, s = "lambda.min")
+predictions <- predict(final_model, newx = X_test, s = "lambda.min")
 
 # Calculate performance metrics (e.g., Mean Squared Error)
 mse <- mean((y_test - predictions)^2)
@@ -95,12 +122,9 @@ cat("Mean Squared Error on Test Set:", mse, "\n")
 
 
 # View results and plot cross-validation results
-print(elasticnet_model)
-plot(elasticnet_model)
+print(final_model)
+plot(predictions)
 
-# Get the best lambda value (from cross-validation)
-best_lambda <- elasticnet_model$lambda.min
-print(best_lambda)
 
 # Step 4: Extract Coefficients
 # Get the coefficients for the optimal lambda
@@ -142,6 +166,58 @@ print(best_coefficients)
 
 #PANEL REGRESSION BASED OFF OF THE BEST VARIABLES FROM ELASTICNET MODEL ------------------------------------------------------------------------------------------------------------------------------------------
 
+
+fe_model_plm <- plm(
+  Annual_Debt_to_income_ratio_low ~ 
+    POPESTIMATE + AGE04_PROP + AGE59_PROP + AGE1014_PROP + AGE1519_PROP + 
+    AGE2529_PROP + AGE3034_PROP + AGE3539_PROP + AGE4044_PROP + AGE4549_PROP +
+    AGE5054_PROP + AGE5559_PROP + AGE6064_PROP + AGE6569_PROP + AGE7074_PROP +
+    AGE7579_PROP + AGE8084_PROP + AGE85PLUS_PROP +
+    Real.GDP..millions.of.chained.2017.dollars..1. +
+    Compensation..millions.of.dollars. + Gross.operating.surplus..millions.of.dollars. +
+    Taxes.on.production.and.imports..TOPI...millions.of.dollars. +
+    Subsidies..millions.of.dollars.  + Property +
+    Sales.and.gross.receipts + General.sales + Selective.sales + Motor.fuel +
+    Alcoholic.beverage + Tobacco.products + Public.utilities + Other.selective.sales +
+    Individual.income + Corporate.income + Motor.vehicle.license + Other.taxes +
+    Charges.and.miscellaneous.general.revenue + Current.charges + Education +
+    School.lunch.sales..gross. + Hospitals + Highways + Air.transportation..airports. +
+    Parking.facilities + Sea.and.inland.port.facilities + Natural.resources +
+    Parks.and.recreation + Housing.and.community.development + Sewerage +
+    Solid.waste.management + Other.charges + Capital.outlay + Higher.education +
+    Elementary...secondary + Other.education + Libraries + Public.welfare +
+    Cash.assistance.payments + Vendor.payments + Other.public.welfare + Health +
+    Veterans..services + Police.protection + Debt.outstanding +
+    Employment.security.administration,
+  data = FinalDataset,
+  model = "within"
+)
+
+summary(fe_model_plm)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Step 5: Extract Significant Variables
 selected_variables <- rownames(best_coefficients)[which(best_coefficients != 0)]
 selected_variables <- selected_variables[selected_variables != "(Intercept)"]  # Remove intercept
@@ -161,12 +237,18 @@ FinalDataset_selected <- FinalDataset %>%
 # Step 7: Run Fixed Effects Panel Regression
 fixed_effects_model <- plm(Annual_Debt_to_income_ratio_low ~ ., 
                            data = FinalDataset_selected, 
-                           index = c("UniqueID", "Year"), 
                            model = "within")
 
 fixed_effects_model
+
 # View the summary of the fixed effects model
 summary(fixed_effects_model)
+
+cor_matrix <- cor(FinalDataset_selected %>% select(-Annual_Debt_to_income_ratio_low))
+print(cor_matrix)
+
+coefficients(fixed_effects_model)
+
 
 library(stargazer)
 
