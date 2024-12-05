@@ -18,10 +18,13 @@ output: html_document
 
 ## Motivation
 
-In this analysis, we aim to explore the relationship between various demographic, economic, and fiscal variables and the `Annual_Debt_to_income_ratio_low`. This variable is a lower-bound estimate of the county-level debt to income ratio. `Annual_Debt_to_income_ratio_high` serves as an upper-bound. In our analysis we tested both a a robustness check, but exclude it from this report for brevity because no signficicant difference in the results was observed. 
+This project investigates the relationship between county-level age demographics and economic outcomes, specifically focusing on debt-to-income ratios. As counties across the U.S. experience demographic shifts, particularly the aging of the population, local governments face fiscal pressures tied to rising expenditures on retirement benefits and healthcare, coupled with reduced tax revenue from an aging workforce. We hypothesize that a higher proportion of older residents correlates with and potentially drives higher county-level debt-to-income ratios.
 
-The motivation behind this study
+This analysis is motivated by the need to understand how demographic trends influence fiscal health at the local level. Counties with larger elderly populations may prioritize policies that cater to retirees—such as increased spending on pensions—potentially exacerbating debt-to-income ratios. Conversely, counties with younger populations may exhibit different fiscal dynamics, such as higher workforce participation and tax revenues.
 
+The primary research question question of this research: Does the age distribution of a county’s population have a causal impact on debt-to-income ratios, potentially driven by shifts in local government spending and tax revenues?
+
+In this research, we assume that tax revenues can serve as a proxy for local government policies. This assumption is based on the idea that tax revenue levels reflect fiscal priorities, including how resources are allocated and expenditures are balanced to address demographic shifts and economic demands.
 
 ## Methods
 
@@ -41,6 +44,8 @@ The dataset is first transformed into a panel format by creating a unique identi
 We selected the `Annual_Debt_to_income_ratio_low` variable as the target for prediction. To predict this variable, we use ElasticNet regression, which is a regularization technique that combines both Lasso (L1) and Ridge (L2) penalties. ElasticNet is particularly useful when there are many correlated predictors.
 
 The data is split into a training set (80%) and a test set (20%). We then fit the ElasticNet model using cross-validation to find the optimal regularization parameter, `lambda`. The cross-validation results indicate the best value of lambda to minimize prediction error.
+
+`Annual_Debt_to_income_ratio_low` was chosen as the outcome variable because it serves as a key indicator of household financial health at the county level. This metric reflects the balance between debt obligations and income, providing insight into the economic well-being of a county's residents on average. Predicting this ratio has particular import to several groups. For instance, policymakers can use it as a tool for identifying financial stress in order to specify policy prescriptions. Similarly local governments can make use of these predictions to more efficiently allocate resources. Business executives may find the debt-to-income ratio important when it comes to identifying areas that have potential. This can affect decisions about investments, credit offerings, and business expansion opportunities.
 
 ## Results
 
