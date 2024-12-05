@@ -1,7 +1,7 @@
 ---
 title: "Final Exploratory analysis"
 author: "Alec Stamm and Robert Hurly"
-date: "2024-12-04"
+date: "2024-12-05"
 output: html_document
 ---
 
@@ -12,7 +12,7 @@ library(htmltools)
 
 ---
 title: "ElasticNet Regression Analysis and Predictive Modeling"
-author: "Your Name"
+author(s): "Alec Stamm and Robert Hurly"
 output: html_document
 ---
 
@@ -95,14 +95,6 @@ The process involved several steps:
 ### Results
 
 The output of the fixed effects model provides estimates for both the time effects (from the `Year` variables) and the county-level characteristics. 
-```{r}
-# Specify the relative path to the saved stargazer HTML file
-file_path <- "output/fixed_effects_table_no_years.html"
-
-# Use the includeHTML function to display the saved HTML content
-includeHTML(file_path)
-
-```
 
 #### Key Findings
 
