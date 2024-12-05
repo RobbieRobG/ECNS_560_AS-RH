@@ -198,6 +198,6 @@ state_counts = all_st_fin_tidy %>%
 
 
 # SAVING
-saveRDS(all_st_fin_tidy, '2. Merged Data/State_Finances_All_Years.rds')
-write.csv(all_st_fin_tidy, "2. Merged Data/State_Finances_All_Years.csv", row.names = F)
+saveRDS(all_st_fin_tidy, '2. Merged Data/Intermediate Cleaning Datasets/State_Finances_All_Years.rds')
+write.csv(all_st_fin_tidy, "2. Merged Data/Intermediate Cleaning Datasets/State_Finances_All_Years.csv", row.names = F)
 

@@ -2,10 +2,10 @@ library(tidyverse)
 library(dplyr)
 #-------------------------------------------------------------------------------------------------------------
 # Merging demographic and GDP data
-Population_data <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/popdata_00_23_clean.csv")
+Population_data <- read.csv("2. Merged Data/popdata_00_23_clean.csv")
 view(data)
 
-Sagdp_data <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/SAGDP_tidy.csv")
+Sagdp_data <- read.csv("2. Merged Data/SAGDP_tidy.csv")
 
 
 # Merge Datasets
@@ -17,7 +17,7 @@ write.csv(result, "Merged_Population_SAGDP_Data.csv", row.names = FALSE)
 
 #--------------------------------------------------------------------------------------------------------------
 # Turning quarterly debt to income ratio data into annual data
-debt_to_income_ratio_data <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/1. Raw Data/Household Debt To Income Ratio Data/DebtToIncomeByCounty.csv")
+debt_to_income_ratio_data <- read.csv("1. Raw Data/Household Debt To Income Ratio Data/DebtToIncomeByCounty.csv")
 
 
 # Checking data structure and converting variables to numeric as needed
@@ -45,9 +45,9 @@ write.csv(debt_to_income_ratio_data1, "Annual_Debt_To_Income_Ratio_data.csv", ro
 #------------------------------------------------------------------------------------------------------------
 
 # More merging 
-Merged_Population_SAGDP_Data <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Merged_Population_SAGDP_Data.csv")
+Merged_Population_SAGDP_Data <- read.csv("2. Merged Data/Merged_Population_SAGDP_Data.csv")
 
-annual_debt_to_income_ratio_data <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Annual_Debt_To_Income_Ratio_data.csv")
+annual_debt_to_income_ratio_data <- read.csv("2. Merged Data/Annual_Debt_To_Income_Ratio_data.csv")
 
 
 
@@ -58,8 +58,8 @@ write.csv(Merged_Population_SAGDP_DebtToIncomeRatio_Data, "Merged_Population_SAG
 
 
 
-data1 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/ALMOST_FINAL_________Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv")
-data2 <- read.csv("C:/Users/Al/OneDrive/Documents/GitHub/ECNS_560_AS-RH/2. Merged Data/Intermediate Cleaning Datasets/State_Finances_All_Years.csv")
+data1 <- read.csv("2. Merged Data/Intermediate Cleaning Datasets/ALMOST_FINAL_________Merged_Population_SAGDP_DebtToIncomeRatio_Data.csv")
+data2 <- read.csv("2. Merged Data/Intermediate Cleaning Datasets/State_Finances_All_Years.csv")
 
 FinalDataset <- data1 |> full_join(data2, by = c("State", "Year"))
 
