@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(htmltools)
+
 ```
 
 ---
@@ -95,7 +95,7 @@ While the predictive model provides useful insights, there are limitations to it
 ### Methods
 
 The process involved several steps:
-1. **Variable Selection**: Based on prior analysis, we selected a subset of variables that were found to have significant coefficients in the ElasticNet model. These variables are likely to have the most influence on the debt-to-income ratio, and using elasticnet to select them helps reduce the likelyhood of our analysis being influenced by ommitted variables bias. 
+1. **Variable Selection**: Based on prior analysis, we selected a subset of variables that were found to have significant coefficients in the ElasticNet model. These variables are likely to have the most influence on the debt-to-income ratio, and using elasticnet to select them helps reduce the likelihood of our analysis being influenced by omitted variables bias. 
 
 2. **Data Preparation**: A new dataset was created, which includes only the `UniqueID`, `Year`, `Annual_Debt_to_income_ratio_low`, and the selected variables. This dataset was then arranged by county (`UniqueID`) and year (`Year`).
 
@@ -103,36 +103,7 @@ The process involved several steps:
 
 ### Results
 
-The output of the fixed effects model provides estimates for both the time effects (from the `Year` variables) and the county-level characteristics. 
-
-#### Key Findings
-
-- **Year Variables**: The coefficients for the year variables show a significant increasing trend in the `Annual_Debt_to_income_ratio_low` from 2001 to 2023. For instance, the coefficient for `Year2023` is 3.67, indicating that the debt-to-income ratio has increased by approximately 3.67 percentage points between 2001 and 2023, holding other factors constant. This result is statistically significant with a p-value of < 2.2e-16.
-  
-- **Demographic Variables**: Several age-related proportions show significant positive relationships with the debt-to-income ratio:
-  - **AGE04_PROP** (Proportion of population aged 0-4): Coefficient of 0.0226, significant at the 1% level.
-  - **AGE59_PROP** (Proportion of population aged 59+): Coefficient of 0.0353, also significant at the 1% level.
-  - **AGE2529_PROP** (Proportion of population aged 25-29): Coefficient of 0.0124, significant at the 1% level.
-  - **AGE3034_PROP** (Proportion of population aged 30-34): Coefficient of -0.0402, significant at the 1% level, indicating a negative relationship with the debt-to-income ratio.
-  
-- **Economic Variables**: Key economic indicators have notable effects:
-  - **Real GDP**: Coefficient of 0.1127, significant at the 1% level, showing a positive association between GDP and the debt-to-income ratio.
-  - **Compensation**: Coefficient of -0.5307, highly significant (p-value < 2.2e-16), suggesting that higher compensation is associated with a lower debt-to-income ratio.
-  - **Gross Operating Surplus**: Coefficient of -0.4699, significant at the 1% level, indicating a similar negative relationship with the debt-to-income ratio.
-  - **Taxes on Production and Imports (TOPI)**: Coefficient of 0.2966, significant at the 1% level, suggesting that higher taxes on production and imports are positively correlated with the debt-to-income ratio.
-
-#### Model Statistics
-
-- **R-Squared**: The fixed effects model explains about 22.05% of the variance in the debt-to-income ratio, with an adjusted R-squared of 18.60%.
-- **F-statistic**: The model is highly significant with an F-statistic of 433.29 (p-value < 2.22e-16), indicating that the model fits the data well.
-
-### Interpretation
-
-The fixed effects model suggests that both time-varying factors (such as GDP, compensation, and taxes) and demographic variables have significant effects on the annual debt-to-income ratio. The results highlight trends over time, such as the steady increase in debt-to-income ratios from 2001 to 2023, while also revealing the impact of various age groups and economic factors. 
-
-- The increase in debt-to-income ratios over time might reflect broader economic trends or policy changes that influence county-level fiscal conditions.
-- Demographic trends, particularly the share of younger and older populations, appear to influence the debt-to-income ratio in varying ways, with some age groups contributing positively and others negatively.
-- Economic factors such as GDP and compensation have notable predictive power, but with opposite signs, indicating complex relationships where economic growth might increase the debt burden, while higher compensation could reduce it.
+While the model was able to be computed, it was riddled with multicolinearity among the regressors which made its model summary uncomputable. Removing the multicolinearly would require us to remove most of the regressors in our model, which would defeat the purpose of using elasticnet as a method of selecting regressors such to minimize risk of ommitted variables bias. We were thus unable to utilize the predictive model in service of causal inference. However, this did provide us with additional evidence that, given our chosen candidate variables of interest, that the question at hand was better suited to predictive analysis using elasticnet rather than causal inference. We therefore include the above discussion of the regression.
 
 ### Limitations and Further Steps
 
@@ -140,12 +111,7 @@ The fixed effects model accounts for unobserved county-level heterogeneity but d
 
 ## Conclusion
 
-The fixed effects panel regression adds depth to the analysis by controlling for time-invariant county-specific effects. The results suggest that a combination of economic and demographic factors significantly influences the `Annual_Debt_to_income_ratio_low`, with notable differences across age groups and years. Future work could explore more sophisticated methods to address potential endogeneity and non-linear relationships, providing a more robust understanding of the factors that shape debt-to-income ratios.
-
-
-## Conclusion
-
-This analysis provides a descriptive regression framework for understanding the relationship between various socioeconomic and fiscal factors and the `Annual_Debt_to_income_ratio_low`. ElasticNet regression has been employed to quantify these relationships and predict the debt-to-income ratio. The results show meaningful associations between predictors and the target variable, and the model has demonstrated good predictive performance.
+This analysis provides a predictive framework for understanding the relationship between various socioeconomic and fiscal factors and the `Annual_Debt_to_income_ratio_low`. ElasticNet regression has been employed to quantify these relationships and predict the debt-to-income ratio. The results show meaningful associations between predictors and the target variable, and the model has demonstrated good predictive performance.
 
 Future work could involve exploring causal inference techniques or enhancing the model with more complex machine learning algorithms to further improve prediction accuracy.
 
@@ -155,39 +121,6 @@ Both authors of this report made use of ChatGPT during the research and writing 
 
 
 ## Visualizations
-
-Below are the visualizations used in the analysis.
-
-### Age Proportion Distribution Animation
-![Debt-to-Income Ratios](age_proportion_distribution_animation.gif):/
-
-
-### Age Proportion Distribution Animation
-![Age Proportion Distribution Animation](Visualizations/age_proportion_distribution_animation.gif)
-
-### Aggregate State Tax Revenue by Year
-![Tax Revenue Over Time](Visualizations/Aggregate State Tax Revenue by Year.jpeg)
-
-### Debt to Income Distribution Animation
-![Debt to Income Distribution Animation](Visualizations/debt_to_income_distribution_animation.gif)
-
-### Elasticnet Output
-![Elasticnet Output](Visualizations/Elasticnet output.png)
-
-### Population Heatmap Animation
-![Population Heatmap Animation](Visualizations/population_heatmap_animation.gif)
-
-### Real GDP Histogram (Log)
-![Real GDP Histogram](Visualizations/real_gdp_histogram_log.jpeg)
-
-
-![Age Proportion Distribution Animation](Visualizations/age_proportion_distribution_animation.gif)
-
-
-
-
-
-
 
 ### Age Proportion Distribution Animation
 ![Age Proportion Distribution Animation](C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Visualizations/age_proportion_distribution_animation.gif)
