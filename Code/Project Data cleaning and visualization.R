@@ -129,6 +129,78 @@ anim_save("age_proportion_distribution_animation.gif", animation = anim)
 
 
 
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(gganimate)
+
+# Specify the age proportion columns and their corresponding new names
+age_prop_vars <- c("AGE04_PROP", "AGE59_PROP", "AGE1014_PROP", "AGE1519_PROP", 
+                   "AGE2024_PROP", "AGE2529_PROP", "AGE3034_PROP", "AGE3539_PROP", 
+                   "AGE4044_PROP", "AGE4549_PROP", "AGE5054_PROP", "AGE5559_PROP", 
+                   "AGE6064_PROP", "AGE6569_PROP", "AGE7074_PROP", "AGE7579_PROP", 
+                   "AGE8084_PROP", "AGE85PLUS_PROP")
+
+# Create a named vector for the new labels
+age_labels <- c("Under_4", "5_to_9", "10_to_14", "15_to_19", 
+                "20_to_24", "25_to_29", "30_to_34", "35_to_39", 
+                "40_to_44", "45_to_49", "50_to_54", "55_to_59", 
+                "60_to_64", "65_to_69", "70_to_74", "75_to_79", 
+                "80_to_84", "85_plus")
+
+# Reshape the data into long format for ggplot
+long_data <- FinalDataset %>%
+  select(Year, all_of(age_prop_vars)) %>%
+  pivot_longer(cols = all_of(age_prop_vars), names_to = "Age_Group", values_to = "Proportion")
+
+# Check for missing values in 'Year' and 'Proportion' columns
+long_data <- long_data %>% drop_na(Year, Proportion)
+
+# Map the original age groups to the new labels
+long_data$Age_Group <- factor(long_data$Age_Group, 
+                              levels = age_prop_vars, 
+                              labels = age_labels)
+
+# Ensure 'Year' is a factor or numeric
+long_data$Year <- factor(long_data$Year)
+
+# Create the ggplot object for boxplots with age groups on the x-axis
+plot <- ggplot(long_data, aes(x = Age_Group, y = Proportion)) +
+  geom_boxplot(aes(fill = Age_Group), outlier.shape = NA, alpha = 0.5) +  # Use boxplot to visualize proportions
+  geom_jitter(aes(color = Age_Group), width = 0.2, alpha = 0.5) +  # Add jitter to show distribution of points
+  labs(
+    title = "Distribution of Population Proportions by Age Group in {closest_state}",
+    y = "Proportion",
+    x = "Age Group"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 14),  # Increase size of x-axis labels
+    axis.text.y = element_text(size = 14),  # Increase size of x-axis labels
+    axis.title.x = element_text(size = 16),  # Increase size of x-axis title
+    axis.title.y = element_text(size = 16),  # Increase size of y-axis title
+    plot.title = element_text(size = 18)      # Increase size of plot title
+  ) +
+  theme(legend.position = "none") +  # Remove legend if not needed
+  transition_states(Year, transition_length = 2, state_length = 1, wrap = FALSE) +  # Animate by year
+  ease_aes('linear')  # Define easing of the animation
+
+# Save the animated plot
+anim <- animate(plot, nframes = 26, width = 1600, height = 1200)
+anim_save("age_proportion_distribution_animation.gif", animation = anim)
+
+
+
+
+
+
+
+
+
+
+
+
+
 #2: Debt to income ratios
 
 
