@@ -126,19 +126,19 @@ Both authors of this report made use of ChatGPT during the research and writing 
 ## Visualizations
 
 ### Age Proportion Distribution Animation
-![Age Proportion Distribution Animation](C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Visualizations/age_proportion_distribution_animation.gif)
+![Age Proportion Distribution Animation](Visualizations/age_proportion_distribution_animation.gif)
 
 ### Aggregate State Tax Revenue by Year
-![Tax Revenue Over Time](C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Visualizations/Aggregate%20State%20Tax%20Revenue%20by%20Year.jpeg)
+![Tax Revenue Over Time](Visualizations/Aggregate%20State%20Tax%20Revenue%20by%20Year.jpeg)
 
 ### Debt to Income Distribution Animation
-![Debt to Income Distribution Animation](C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Visualizations/debt_to_income_distribution_animation.gif)
+![Debt to Income Distribution Animation](Visualizations/debt_to_income_distribution_animation.gif)
 
 ### Elasticnet Output
-![Elasticnet Output](C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Visualizations/Elasticnet%20output.png)
+![Elasticnet Output](Visualizations/Elasticnet%20output.png)
 
 ### Population Heatmap Animation
-![Population Heatmap Animation](C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Visualizations/population_heatmap_animation.gif)
+![Population Heatmap Animation](Visualizations/population_heatmap_animation.gif)
 
 ### Real GDP Histogram (Log)
-![Real GDP Histogram](C:/Users/d57n293/Documents/GitHub/ECNS_560_AS-RH/Visualizations/real_gdp_histogram_log.jpeg)
+![Real GDP Histogram](Visualizations/real_gdp_histogram_log.jpeg)
